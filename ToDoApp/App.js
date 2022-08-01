@@ -21,11 +21,22 @@ export default function App() {
   const travel = () => setWorking(false);
   const onChangeText = (payload) => setText(payload);
   const saveToDos = async (toSave) => {
-    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
+    try {
+      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
+    } catch(e) {
+      console.log(e);
+    }
   };
   const loadToDos = async () => {
-    const str = await AsyncStorage.getItem(STORAGE_KEY);
-    setToDos(JSON.parse(str));
+    try {
+      const str = await AsyncStorage.getItem(STORAGE_KEY);
+      if (str !== null) {
+        setToDos(JSON.parse(str));
+      }
+    } catch(e) {
+      console.log(e);
+    }
+
   };
 
   useEffect(() => {
