@@ -7,7 +7,9 @@ import {
   TouchableOpacity,
   TextInput,
   ScrollView,
+  Alert,
 } from "react-native";
+import { Fontisto } from '@expo/vector-icons';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { theme } from "./colors";
 
@@ -23,7 +25,7 @@ export default function App() {
   const saveToDos = async (toSave) => {
     try {
       await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
-    } catch(e) {
+    } catch (e) {
       console.log(e);
     }
   };
@@ -33,16 +35,13 @@ export default function App() {
       if (str !== null) {
         setToDos(JSON.parse(str));
       }
-    } catch(e) {
+    } catch (e) {
       console.log(e);
     }
-
   };
-
   useEffect(() => {
     loadToDos();
   }, []);
-
   const addToDo = async () => {
     if (text === "") {
       return;
@@ -54,6 +53,22 @@ export default function App() {
     setToDos(newToDos);
     await saveToDos(newToDos);
     setText("");
+  };
+  const deleteToDo = (key) => {
+    Alert.alert("Delete To Do", "정말로 삭제하시겠습니까?", [
+      { text: "취소" },
+      {
+        text: "삭제",
+        style: "destructive",
+        onPress: async () => {
+          const newToDos = { ...toDos };
+          delete newToDos[key];
+          setToDos(newToDos);
+          await saveToDos(newToDos);
+        },
+      },
+    ]);
+    return;
   };
 
   return (
@@ -91,6 +106,9 @@ export default function App() {
           toDos[key].working === working ? (
             <View style={styles.toDo} key={key}>
               <Text style={styles.toDoText}>{toDos[key].text}</Text>
+              <TouchableOpacity onPress={() => deleteToDo(key)}>
+                <Fontisto name="trash" size={18} color={theme.trash} />
+              </TouchableOpacity>
             </View>
           ) : null
         )}
@@ -132,6 +150,9 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
     paddingHorizontal: 20,
     borderRadius: 15,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
 
   toDoText: {
